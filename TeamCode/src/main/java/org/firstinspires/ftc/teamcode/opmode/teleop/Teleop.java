@@ -16,15 +16,19 @@ public class Teleop extends LinearOpMode {
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("bl");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("fr");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("br");
-        Servo hangServo = hardwareMap.servo.get("hangServo");
-        Servo launchServo = hardwareMap.servo.get("launchServo");
+        DcMotor rotator = hardwareMap.dcMotor.get("rotator");
+        DcMotor lifter = hardwareMap.dcMotor.get("lifter");
 
-        DcMotor hang = hardwareMap.dcMotor.get("hang");
+
+        Servo launchServo = hardwareMap.servo.get("launcher");
+        Servo grabberTilt = hardwareMap.servo.get("grabberTilt");
+        Servo grabberR = hardwareMap.servo.get("grabberR");
+        Servo grabberL = hardwareMap.servo.get("grabberL");
+
+        boolean leftGrabberOpen = false;
+        boolean rightGrabberOpen = false;
 
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        hangServo.setPosition(1);
 
         waitForStart();
 
@@ -32,7 +36,7 @@ public class Teleop extends LinearOpMode {
 
         while (opModeIsActive()) {
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-            double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+            double x = gamepad1.left_stick_x; // Counteract imperfect strafing
             double rx = gamepad1.right_stick_x;
 
 
@@ -48,31 +52,74 @@ public class Teleop extends LinearOpMode {
             backRightMotor.setPower(backRightPower);
 
 
-            // servo
-            if (gamepad1.a){
-                // hang position
-                hangServo.setPosition(0.5);
-            }
-            else if(gamepad1.b){
-                // down position
-                hangServo.setPosition(1);
-            }
-
-
-            // go up and down
-            if (gamepad1.y){
-                hang.setPower(1);
-            }
-            else if(gamepad1.x){
-                hang.setPower(-1);
-            }
-            else{
-                hang.setPower(0);
-            }
+            //
+            // Game Pad #1
+            //
 
             // launcher
-            if (gamepad2.y) {
+            if (gamepad1.y) {
                 launchServo.setPosition(0);
+            }
+
+            //
+            // Game Pad #2
+
+            // grabber tilt
+            if (gamepad2.dpad_down) {       // put down grabbers
+                grabberTilt.setPosition(0.1);
+
+            }
+            else if (gamepad2.dpad_up) {    // pull up grabbers
+                grabberTilt.setPosition(1.0);
+            }
+
+            // grabber
+            if (gamepad2.left_bumper) {
+                if (leftGrabberOpen) {
+                    // Close grabber
+                    grabberL.setPosition(0);
+                }
+                else {
+                    // Open grabber
+                    grabberL.setPosition(1);
+
+                }
+                leftGrabberOpen = !leftGrabberOpen;
+            }
+
+            if (gamepad2.right_bumper) {
+                if (rightGrabberOpen) {
+                    // Close grabber
+                    grabberR.setPosition(0);
+                }
+                else {
+                    // Open grabber
+                    grabberR.setPosition(1);
+
+                }
+                rightGrabberOpen = !rightGrabberOpen;
+            }
+
+            // arm rotation
+            if (gamepad2.a){
+                rotator.setPower(1);
+            }
+            else if(gamepad2.b){
+                rotator.setPower(-1);
+            }
+            else {
+                rotator.setPower(0);
+            }
+
+            // actuator extension and retraction
+            if (gamepad2.x){
+                lifter.setPower(1);
+            }
+            else if(gamepad2.y){
+                lifter.setPower(-1);
+            }
+            else {
+                lifter.setPower(0);
             }
         }
     }
